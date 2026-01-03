@@ -1,0 +1,38 @@
+<div class="section-container">
+  <h1>Contact <gravizot></gravizot></h1>
+
+  <form [formGroup]="contactForm" (ngSubmit)="submit()">
+    <div class="control-container">
+      <input type="email" formControlName="email" placeholder="Enter email address" />
+      <div *ngIf="email.invalid && (email.dirty || email.touched)" class="group-error">
+        <div *ngIf="email.errors?.['required']">Email is required.</div>
+        <div *ngIf="email.errors?.['pattern']">Invalid email format.</div>
+      </div>
+    </div>
+    
+    <div class="control-container">
+      <input type="text" formControlName="topic" placeholder="Message topic" />
+      <div *ngIf="topic.invalid && (topic.dirty || topic.touched)" class="group-error">
+        <div *ngIf="topic.errors?.['required']">Topic is required.</div>
+        <div *ngIf="(topic.errors?.['minlength'] || topic.errors?.['maxlength'])">Topic must be 15 - 120 characters</div>
+      </div>
+    </div>
+    
+    <div class="control-container">
+      <textarea
+        formControlName="message" placeholder="Please enter your question, comments, or requests"        
+      ></textarea>
+      <small id="message-help" class="help">
+        30-1000 characters. You can resize this box vertically.
+      </small>
+      <div *ngIf="message.invalid && (message.dirty || message.touched)" class="group-error">
+        <div *ngIf="message.errors?.['required']">Message is required.</div>
+        <div *ngIf="(message.errors?.['minlength'] || message.errors?.['maxlength'])">Message must be 30 - 1000 characters</div>
+      </div>
+    </div>
+    
+    <div class="action-container">
+      <app-button type="'submit'" [disabled]="contactForm.invalid" [label]="'Submit'"></app-button>
+    </div>
+  </form>
+</div>

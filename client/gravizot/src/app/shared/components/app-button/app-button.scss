@@ -1,0 +1,26 @@
+@use "../../../../assets/styles/colors" as *;
+
+button {
+  align-self: center;
+  border: 0;
+  background: $blue700;
+  color: $gray50;
+  font-weight: 600;
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: filter 0.15s ease;
+
+  &:hover {
+    background-color: $blue600;
+  }
+
+  &:active {
+    background-color: $blue800;
+  }
+
+  &:disabled {
+    background-color: $blue200;
+    cursor: not-allowed;
+  }
+}

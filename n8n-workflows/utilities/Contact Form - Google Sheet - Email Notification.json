@@ -1,0 +1,95 @@
+{
+  "name": "Contact Form - Google Sheet - Email Notification",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "documentId": {
+          "__rl": true,
+          "value": "1zzAVqHoMBEAsV9x9NilcdCAa8pypg4FhdIWxZfPWqms",
+          "mode": "list",
+          "cachedResultName": "Contact Form Submissions",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1zzAVqHoMBEAsV9x9NilcdCAa8pypg4FhdIWxZfPWqms/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 777279827,
+          "mode": "list",
+          "cachedResultName": "Form Responses 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1zzAVqHoMBEAsV9x9NilcdCAa8pypg4FhdIWxZfPWqms/edit#gid=777279827"
+        },
+        "event": "rowAdded",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "bafc5398-6eea-4d65-9016-ca3b2624ba88",
+      "name": "Google Sheets Trigger",
+      "credentials": {
+        "googleSheetsTriggerOAuth2Api": {
+          "id": "pWDr4b6hD9Gyt3SI",
+          "name": "Google Sheets Trigger account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "greg@bytezoggle.com",
+        "subject": "=New Contact Form Submission from {{ $json.Name ? $json.Name : $json.Email }}",
+        "emailType": "text",
+        "message": "=A new Contact Form submission has been received:\n\nName: {{ $json.Name ? $json.Name : \"not provided\" }}\nEmail: {{ $json.Email }}\nPhone: {{ $json.Phone ? $json.Phone : \"not provided\" }}\nCompany: {{ $json.Company ? $json.Company : \"not provided\" }}\nMessage: {{ $json['Message (tell us a bit about your company, your automation goals, or anything really)'] }}\n\nThe form submission has been added to this Google Sheet:\nhttps://docs.google.com/spreadsheets/d/1zzAVqHoMBEAsV9x9NilcdCAa8pypg4FhdIWxZfPWqms/edit?usp=sharing",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "ca136af9-6e95-49f3-9e74-1e12954974e1",
+      "name": "Send a message",
+      "webhookId": "4d641726-5f8d-4aff-9281-eb9553122a8e",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "lVBhxCXwTW5jZgqJ",
+          "name": "greg@bytezoggle.com"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Sheets Trigger": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "3f23a636-1b84-40b8-b257-cee7e2d7c31c",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "fff45e06556ddb46eb6f558e556b9b67a7bcf4f94dfa0cca7550d16dc81ad93c"
+  },
+  "id": "nvSlvvmxb308VYg4",
+  "tags": []
+}

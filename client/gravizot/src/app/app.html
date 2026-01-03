@@ -1,0 +1,11 @@
+<div class="app-container">
+  <app-header></app-header>
+  <router-outlet></router-outlet>
+</div>
+@if (modalService.showSignupLogin()) {
+  <div class="modal-backdrop" (click)="modalService.closeSignupLogin()">
+    <div class="modal-container" (click)="$event.stopPropagation()">
+      <signup-login></signup-login>
+    </div>
+  </div>
+}

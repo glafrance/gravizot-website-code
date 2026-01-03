@@ -1,0 +1,441 @@
+{
+  "name": "Daily Weekly Calendar Email",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "=0 7 * * 1"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -352,
+        -192
+      ],
+      "id": "fb6fb40f-0f46-4d16-87f5-370523b35319",
+      "name": "Events for Week"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 7 * * *"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -352,
+        0
+      ],
+      "id": "94cccb7f-d2f1-4755-a7b6-33b91d44d30e",
+      "name": "Events for the Day"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a4ad75e1-1053-4c38-a7a0-68ecc8d36f6d",
+              "name": "=summary",
+              "value": "={{ $json.summary }}",
+              "type": "string"
+            },
+            {
+              "id": "f2d27082-5223-482b-b4bb-35bd73a54eda",
+              "name": "start",
+              "value": "={{ $json.start.dateTime }}",
+              "type": "string"
+            },
+            {
+              "id": "a86069d9-59d3-42c0-8469-fb34158ffffa",
+              "name": "end",
+              "value": "={{ $json.end.dateTime }}",
+              "type": "string"
+            },
+            {
+              "id": "4df1be28-21fe-4ecc-b1b5-a1e693fea4cc",
+              "name": "attendees",
+              "value": "={{ $json.attendees.map(item => item.email) }}",
+              "type": "string"
+            },
+            {
+              "id": "238d2b78-1779-4860-852c-ad49fcab17e2",
+              "name": "location",
+              "value": "={{ $json.location }}\n",
+              "type": "string"
+            },
+            {
+              "id": "f7eff323-f89c-4700-9552-7b618aa2ff8b",
+              "name": "description",
+              "value": "={{ $json.description }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        224,
+        -192
+      ],
+      "id": "5cf8a299-c9eb-4ac6-bca7-6fcc3a8ea332",
+      "name": "Extract Weeks Event Data"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a4ad75e1-1053-4c38-a7a0-68ecc8d36f6d",
+              "name": "=summary",
+              "value": "={{ $json.summary }}",
+              "type": "string"
+            },
+            {
+              "id": "f2d27082-5223-482b-b4bb-35bd73a54eda",
+              "name": "start",
+              "value": "={{ $json.start.dateTime }}",
+              "type": "string"
+            },
+            {
+              "id": "a86069d9-59d3-42c0-8469-fb34158ffffa",
+              "name": "end",
+              "value": "={{ $json.end.dateTime }}",
+              "type": "string"
+            },
+            {
+              "id": "4df1be28-21fe-4ecc-b1b5-a1e693fea4cc",
+              "name": "attendees",
+              "value": "={{ $json.attendees ? $json.attendees.map(item => item.email) : \"no additional attendees\" }}",
+              "type": "string"
+            },
+            {
+              "id": "238d2b78-1779-4860-852c-ad49fcab17e2",
+              "name": "location",
+              "value": "={{ $json.location ? $json.location : \"no location set\" }}",
+              "type": "string"
+            },
+            {
+              "id": "f7eff323-f89c-4700-9552-7b618aa2ff8b",
+              "name": "description",
+              "value": "={{ $json.description ? $json.description : \"no description set\" }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        224,
+        0
+      ],
+      "id": "e39ac577-8b92-4763-b09d-9f7b436cfd9a",
+      "name": "Extract Weeks Event Data1"
+    },
+    {
+      "parameters": {
+        "sendTo": "greg@bytezoggle.com",
+        "subject": "Calendar Events for this Week",
+        "emailType": "text",
+        "message": "=Here are your Google Calendar events for this work week:\n\n{{ $json[\"data\"].map(item => `${item.summary}\\nStart: ${item.start}\\nEnd: ${item.end}\\nAttendees: ${JSON.parse(item.attendees).join(\", \")}\\nLocation: ${item.location}${item.description}\\n\\n`).join(\"\") }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        640,
+        -192
+      ],
+      "id": "8d829233-2076-48a4-bdbd-fc7f85f7a226",
+      "name": "Send Email of Calendar Events for the Week",
+      "webhookId": "e7ed82dc-7373-4f1e-b1ae-a5975ba6950e",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "lVBhxCXwTW5jZgqJ",
+          "name": "greg@bytezoggle.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get current date\nconst curr = new Date();\n\n// Calculate days until next Monday\nconst daysUntilNextMonday = ((8 - curr.getDay()) % 7) || 7;\n\n// Get next Monday at 00:00:00\nconst nextMonday = new Date(curr);\nnextMonday.setDate(curr.getDate() + daysUntilNextMonday);\nnextMonday.setHours(0, 0, 0, 0);\n\n// Get next Friday at 23:59:59\nconst nextFriday = new Date(nextMonday);\nnextFriday.setDate(nextMonday.getDate() + 4);\nnextFriday.setHours(23, 59, 59, 999);\n\n// Set output\nitems[0].json.from = nextMonday.toISOString();\nitems[0].json.to = nextFriday.toISOString();\n\nreturn items;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -192,
+        -192
+      ],
+      "id": "3fe07338-d94c-4805-a2c4-a0ea18c29ffa",
+      "name": "Generate from/to for next Mon-Fri"
+    },
+    {
+      "parameters": {
+        "jsCode": "var curr = new Date;\nvar day_start = new Date(curr.setHours(0,0,0,0));\nvar day_end = new Date(curr.setHours(23,59,59,99));\nitems[0].json.from = day_start.toISOString();\nitems[0].json.to = day_end.toISOString();\n\nreturn items;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -192,
+        0
+      ],
+      "id": "bae47cda-8948-4930-9844-a450d584c292",
+      "name": "Generate from/to for today"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "value": "greg@bytezoggle.com",
+          "mode": "list",
+          "cachedResultName": "greg@bytezoggle.com"
+        },
+        "returnAll": true,
+        "timeMin": "={{ $json.from }}",
+        "timeMax": "={{ $json.to }}",
+        "options": {
+          "recurringEventHandling": "expand"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        -192
+      ],
+      "id": "86a8fb52-5d88-4061-bc85-e62b9612b462",
+      "name": "Calendar Events for Mon - Fri",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "BAOsG6dKsZ2UezIv",
+          "name": "Greg@ByteZoggle"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "value": "greg@bytezoggle.com",
+          "mode": "list",
+          "cachedResultName": "greg@bytezoggle.com"
+        },
+        "returnAll": true,
+        "timeMin": "={{ $json.from }}",
+        "timeMax": "={{ $json.to }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "id": "f4bbd394-c9e9-41b9-85b3-1664547fc7ec",
+      "name": "Calendar Events for Today",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "BAOsG6dKsZ2UezIv",
+          "name": "Greg@ByteZoggle"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        432,
+        -192
+      ],
+      "id": "f29f8e6a-bd2b-46dc-bae1-6cab520360d1",
+      "name": "Aggregate Mon - Fri Events"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        432,
+        0
+      ],
+      "id": "df75c57b-92f8-4941-aa56-a23aea25c2bf",
+      "name": "Aggregate Todays Events"
+    },
+    {
+      "parameters": {
+        "sendTo": "greg@bytezoggle.com",
+        "subject": "Google Calendar Events for Today",
+        "emailType": "text",
+        "message": "=Here are your Google Calendar events for today:\n\n{{ $json[\"data\"].map(item => `${item.summary}\\nStart: ${item.start}\\nEnd: ${item.end}\\nAttendees: ${JSON.parse(item.attendees).join(\", \")}\\nLocation: ${item.location}${item.description}\\n\\n`) }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        640,
+        0
+      ],
+      "id": "9a99e4ed-918b-4d20-8280-6787d9070dab",
+      "name": "Send Email of Calendar Events for Today",
+      "webhookId": "f5dace65-5c50-4ead-bb1e-491f8e2f976e",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "lVBhxCXwTW5jZgqJ",
+          "name": "greg@bytezoggle.com"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Events for Week": {
+      "main": [
+        [
+          {
+            "node": "Generate from/to for next Mon-Fri",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Events for the Day": {
+      "main": [
+        [
+          {
+            "node": "Generate from/to for today",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Weeks Event Data": {
+      "main": [
+        [
+          {
+            "node": "Aggregate Mon - Fri Events",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Weeks Event Data1": {
+      "main": [
+        [
+          {
+            "node": "Aggregate Todays Events",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate from/to for next Mon-Fri": {
+      "main": [
+        [
+          {
+            "node": "Calendar Events for Mon - Fri",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate from/to for today": {
+      "main": [
+        [
+          {
+            "node": "Calendar Events for Today",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calendar Events for Mon - Fri": {
+      "main": [
+        [
+          {
+            "node": "Extract Weeks Event Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calendar Events for Today": {
+      "main": [
+        [
+          {
+            "node": "Extract Weeks Event Data1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate Mon - Fri Events": {
+      "main": [
+        [
+          {
+            "node": "Send Email of Calendar Events for the Week",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate Todays Events": {
+      "main": [
+        [
+          {
+            "node": "Send Email of Calendar Events for Today",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "9f7b14fd-b137-456c-86cc-18f192b8fc2b",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "fff45e06556ddb46eb6f558e556b9b67a7bcf4f94dfa0cca7550d16dc81ad93c"
+  },
+  "id": "SKyAegtvOjxAHnB0",
+  "tags": []
+}

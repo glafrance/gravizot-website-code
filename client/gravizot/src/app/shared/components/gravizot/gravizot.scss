@@ -1,0 +1,11 @@
+@use "../../../../assets/styles/colors" as *;
+
+h3 {
+  font-family: Space Grotesk, sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 600;
+  font-style: normal;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  display: inline-block;
+}

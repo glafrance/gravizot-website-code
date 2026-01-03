@@ -1,0 +1,201 @@
+{
+  "name": "Summarize Inbox",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 7
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -240,
+        0
+      ],
+      "id": "f20ba41e-cea5-4a7f-b820-07218bcd70a1",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "returnAll": true,
+        "simple": false,
+        "filters": {
+          "readStatus": "unread"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        -32,
+        0
+      ],
+      "id": "1c36a8a3-8baf-4aad-b43a-5176d299cdae",
+      "name": "Get many messages",
+      "webhookId": "e9d4a358-eb68-44f8-9295-049c087ee54d",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "lVBhxCXwTW5jZgqJ",
+          "name": "greg@bytezoggle.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.email }}",
+        "options": {
+          "systemMessage": "=You produce a morning digest of **unread Gmail messages** grouped by sender and topic.\nReturn **plain text only** in EXACTLY this layout per sender:\n\n<Name or Sender> (<email>) (<N email|emails>)\n    <concise topic> (<M email|emails>)\n    <concise summary of the email(s)>\n    <positive|neutral|negative> sentiment\n\nRules:\n- Group by sender (email + best-available name from the headers).\n- Within each sender, group by concise topic; count messages per topic.\n- Topic = 2–7 words. Summary = 1–2 sentences, factual and terse.\n- Sentiment ∈ {positive, neutral, negative}. If unsure, choose neutral.\n- Use pluralization correctly: “(1 email)” vs “(2 emails)”.\n- If there are **no unread emails**, output exactly: `No unread emails found today.`\n- Do not invent details. Ignore signatures and trackers.\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        416,
+        0
+      ],
+      "id": "83478e77-ea61-4a60-8da9-ab57ceb2a48f",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        288,
+        208
+      ],
+      "id": "178ca433-f960-4e4b-ae66-7e5196994ba3",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "GSfJHfQqDDmjBjsa",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "greg@bytezoggle.com",
+        "subject": "=Daily Unread Email Summary — {{$now.toFormat('MM-dd-yyyy')}}",
+        "emailType": "text",
+        "message": "={{$json.output}}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        768,
+        0
+      ],
+      "id": "57c4ec7d-69d4-4987-9e25-3cc50d5308dd",
+      "name": "Send a message",
+      "webhookId": "31f96f09-0f9b-4ee6-975c-fcd9a38e5656",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "lVBhxCXwTW5jZgqJ",
+          "name": "greg@bytezoggle.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "email",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        176,
+        0
+      ],
+      "id": "1c7c9a7f-3d11-416a-8a7d-a12ca630bc32",
+      "name": "Aggregate"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get many messages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many messages": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "30ce0070-0f29-4fcd-8d67-43f7f4ae3b79",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "fff45e06556ddb46eb6f558e556b9b67a7bcf4f94dfa0cca7550d16dc81ad93c"
+  },
+  "id": "oH11VOHWTWFajtYM",
+  "tags": []
+}

@@ -1,0 +1,9 @@
+CREATE TABLE IF NOT EXISTS contact_messages (
+  id BIGSERIAL PRIMARY KEY,
+  topic TEXT NOT NULL,
+  email TEXT NOT NULL,
+  message TEXT NOT NULL,
+  ip TEXT,
+  ua TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);

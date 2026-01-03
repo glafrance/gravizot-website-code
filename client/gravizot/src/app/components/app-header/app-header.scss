@@ -1,0 +1,85 @@
+@use "../../../assets/styles/colors" as *;
+
+header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  display: block;
+  height: 58px;
+
+  background-color: $blue800;
+  color: $gray50;
+}
+
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0 auto;
+  padding: 0.75rem 3rem;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 50px;
+
+  .logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 700;
+    font-size: 1.125rem;
+    line-height: 1;
+    text-decoration: none;
+  
+    &:focus-visible {
+      outline: 2px solid var(--hover-fg);
+      outline-offset: 2px;
+      border-radius: 0.5rem;
+    }
+  }
+
+  p {
+    font-size: 14px;
+    letter-spacing: 1px;
+  }
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.nav-link {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  text-decoration: none;
+  color: $gray50;
+  cursor: pointer;
+
+  &:hover {
+    background: $blue900;
+  }
+
+  &:focus-visible {
+    outline: none;
+  }
+}
+
+/* Small screens */
+@media (max-width: 600px) {
+  .container {
+    padding: 1rem 1.5rem;
+  }
+  .brand {
+    flex-direction: column;
+    gap: 7px;
+    .logo {
+      font-size: 1rem;
+    }
+  }
+}

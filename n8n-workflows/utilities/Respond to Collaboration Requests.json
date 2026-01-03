@@ -1,0 +1,272 @@
+{
+  "name": "Respond to Collaboration Requests",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 7,
+              "triggerAtMinute": 30
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        240,
+        0
+      ],
+      "id": "42d9b2ce-2752-4f5d-925a-a6b9ef7d9a70",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "limit": 20,
+        "simple": false,
+        "filters": {
+          "readStatus": "unread"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        448,
+        0
+      ],
+      "id": "f1ba1e7e-333e-4370-94d6-ed4c21711270",
+      "name": "Get many messages",
+      "webhookId": "042b004f-a7a0-489c-b56e-1809427d1000",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "lVBhxCXwTW5jZgqJ",
+          "name": "greg@bytezoggle.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "70b526b0-137d-4f80-8654-64a50929340e",
+              "leftValue": "={{ $json.message.content.should_respond }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1008,
+        0
+      ],
+      "id": "37b454c7-c87a-4f95-b0d0-2940a93bf729",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4.1",
+          "mode": "list",
+          "cachedResultName": "GPT-4.1"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=You are an expert email screener for a well-known creator/executive. \nYour job: from a single inbound email (subject, from, body, metadata), decide if it’s a \nCOLLABORATION PROPOSAL (e.g., podcast, YouTube/video collab, live stream, webinar, workshop, interview, guest post, co-promotion, speaking slot, sponsorship).\n\nRules:\n1) Extract clean, normalized sender info.\n2) Give a tight 1–3 sentence summary of the proposed collaboration.\n3) Judge seriousness/fit. Mark amateuristic/frivolous if the message is vague, spammy, \n   boilerplate, poorly written, deceptive, has no concrete ask, or lacks evidence of audience/credibility.\n4) If credible enough to consider, set should_respond=true and assign a response_tier:\n   - \"high_value\" when there’s clear reach/brand fit (e.g., notable brand/guest, strong metrics, major show).\n   - \"standard\" otherwise.\n   If NOT worth considering, should_respond=false and response_tier=\"none\".\n5) Be concise and deterministic. Do not invent facts. Prefer info in the email over guesswork.\n6) Output EXACTLY one JSON object with the schema below—no prose before or after.\n\nOutput JSON schema (all keys required):\n{\n  \"email_id\": \"<string>\",\n  \"thread_id\": \"<string>\",\n  \"subject\": \"<string>\",\n  \"sender_name\": \"<string>\",\n  \"sender_email\": \"<string>\",\n  \"sender_company\": \"<string|null>\",\n  \"summary\": \"<1-3 sentences>\",\n  \"is_collab\": <true|false>,\n  \"quality\": \"<credible|amateur>\",\n  \"should_respond\": <true|false>,\n  \"response_tier\": \"<high_value|standard|none>\",\n  \"proposed_format\": \"<podcast|youtube|livestream|webinar|workshop|interview|guest_post|sponsorship|other>\",\n  \"evidence\": {\n    \"links\": [\"<url>\", \"...\"],\n    \"audience_metrics\": \"<string|null>\",\n    \"notable_guest_or_brand\": \"<string|null>\"\n  },\n  \"confidence\": <0.0-1.0>,\n  \"reason\": \"<short rationale for the decision>\"\n}\n",
+              "role": "system"
+            },
+            {
+              "content": "=You will receive one email at a time.\n\nMetadata:\n- Message ID: {{ $json.messageId }}\n- Thread ID: {{ $json.threadId }}\n- From: {{ $json.from }}        // e.g., \"Name <email@domain.com>\"\n- Subject: {{ $json.subject }}\n\nEmail body (prefer text if available):\n{{ $json.text || $json.html }}\n\nIMPORTANT:\n- Parse any visible signature to help infer sender_name/company if present.\n- If company is not stated, return \"null\" for sender_company.\n- Follow the System instructions and return EXACTLY one JSON object per the schema.\n"
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        672,
+        0
+      ],
+      "id": "ed70f2ee-1f0c-4fae-9a68-2546e75c036d",
+      "name": "Classifier",
+      "credentials": {
+        "openAiApi": {
+          "id": "GSfJHfQqDDmjBjsa",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Here is the classifier output for one email (verbatim JSON):\n\n{{ JSON.stringify($json) }}\n\nAdditional context for the reply:\n- Your name: Greg Lafrance\n- Your brand/org: ByteZoggle\n- Timezone: America/New_York\n\nInstructions:\n- If classifier.should_respond is false, return the {\"should_respond\": false, ...} JSON as specified.\n- If true, produce the {\"should_respond\": true, ...} JSON with:\n   - to = {{ JSON.stringify($json.message.content.sender_email) }}\n   - subject = \"Re: \" + ({{ $('Classifier').item.json.message.content.subject }} or a concise equivalent)\n   - body_text = a polished, concise email that:\n        * Thanks the sender and 1-sentence restates the proposal (use {{ $('Classifier').item.json.message.content.summary }}).\n        * States the three CONDITIONS exactly and clearly (prominent role, positive portrayal with credentials, compensation tier).\n        * Selects the correct rate by classifier.response_tier:\n             - high_value → \"$1,000 per 30 minutes\"\n             - standard  → \"$500 per 30 minutes\"\n        * Requests the evaluation details (bulleted list).\n        * Provides a simple CTA (reply with details).\n        * Signs off with Greg Lafrance and ByteZoggle.\n   - in_reply_to = classifier.email_id\n   - thread_id = classifier.thread_id\n\nReturn only the JSON object per the System Output contract—no extra prose.\n"
+            },
+            {
+              "content": "=You are a communications lead for a prominent creator/executive.\n\nGoal:\n- Using the passed-in JSON from the classifier, draft a reply email ONLY when \"should_respond\"=true.\n- The reply must thank the sender, restate the collaboration succinctly, and present CONDITIONS.\n\nRequired CONDITIONS to state clearly:\n1) Prominent role: {{YourName}} must have a featured or leading role in the activity (e.g., headliner, \n   lead guest, co-host, or equivalent top billing).\n2) Positive framing: All materials must describe {{YourName}} in a positive manner and highlight \n   desired qualifications/credentials.\n3) Compensation (choose tier):\n   - If response_tier = \"high_value\": \"$1,000 per 30 minutes\"\n   - If response_tier = \"standard\": \"$500 per 30 minutes\"\n\nAlso request key details to evaluate fit (use bullet points):\n- Format & length; live vs recorded; timeline and target date(s)\n- Audience size & demographics; distribution plan & channels\n- Promotion expectations (cross-posting, social pushes, assets provided)\n- Run-of-show/agenda; talking points; deliverables; required preparation\n- Usage rights/edit approval window; final cut portrayal\n- Tech/logistics (recording platform, timezone, backup plan)\n\nTone:\n- Warm, professional, brief, and decisive.\n- If \"quality\" = \"amateur\" but should_respond=true, be extra concise and ask for concrete specifics to proceed.\n\nOutput contract:\n- If should_respond=false, output exactly:\n  {\"send\": false, \"reason\": \"<short reason>\"}\n\n- If should_respond=true, output exactly the JSON below (no extra text):\n{\n  \"send\": true,\n  \"to\": \"<sender_email>\",\n  \"subject\": \"Re: <original subject or concise variant>\",\n  \"body_text\": \"<final plain-text email body ready to send>\",\n  \"in_reply_to\": \"<email_id>\",\n  \"thread_id\": \"<thread_id>\"\n}\n",
+              "role": "system"
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        1152,
+        -128
+      ],
+      "id": "f3092d3a-a1f4-4f23-84a9-7a61f169ddcd",
+      "name": "Message a model",
+      "credentials": {
+        "openAiApi": {
+          "id": "GSfJHfQqDDmjBjsa",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.message.content.to }}",
+        "subject": "={{ $json.message.content.subject }}",
+        "emailType": "text",
+        "message": "={{ $json.message.content.body_text }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1488,
+        -128
+      ],
+      "id": "dd814ac7-fe89-4a70-93b9-1f8d8793369f",
+      "name": "Send a message",
+      "webhookId": "e3cb19a9-baa7-4955-a7d9-80ab6af45241",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "lVBhxCXwTW5jZgqJ",
+          "name": "greg@bytezoggle.com"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1152,
+        96
+      ],
+      "id": "c962671a-bc50-446d-bc56-e7817b275983",
+      "name": "No Operation, do nothing"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get many messages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many messages": {
+      "main": [
+        [
+          {
+            "node": "Classifier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Classifier": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "c64786ac-b4ba-4a83-8415-da51ad616067",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "fff45e06556ddb46eb6f558e556b9b67a7bcf4f94dfa0cca7550d16dc81ad93c"
+  },
+  "id": "MZaWaKZKKZFR3cnQ",
+  "tags": []
+}

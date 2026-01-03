@@ -1,0 +1,71 @@
+@use "../../../assets/styles/colors" as *;
+
+.dialog-content {
+  display: flex;
+  flex-direction: column;
+  color: $blue700;
+  background-color: $white;
+  padding: 10px 20px;
+
+  form {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+    margin-top: 10px;
+
+    .control-container {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 6px;      
+      width: 100%;
+
+      input {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid $gray300;
+        border-radius: 4px;
+        font-size: 14px;
+        box-sizing: border-box;
+        color: $blue700;
+      }
+      input::placeholder {
+        color: $purple900;
+        opacity: 1;
+      }
+      input.ng-invalid.ng-touched,
+      input.ng-invalid.ng-dirty {
+        border: 1px solid $red500;
+        background-color: $red50;
+      }
+      input.ng-invalid.ng-touched::placeholder,
+      input.ng-invalid.ng-dirty::placeholder {
+        color: $red900;
+      }
+      .group-error {
+        color: $red600;
+        font-size: 12px;
+        margin-left: 10px;
+      }
+    }
+    .action-container {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      gap: 20px;
+
+      .forgot-password {
+        font-size: 12px;
+        cursor: pointer;
+
+        &:hover {
+          color: $purple900;
+        }
+      }
+    }
+    .switch-mode {
+      cursor: pointer;
+    }
+  }
+}

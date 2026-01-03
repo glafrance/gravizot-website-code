@@ -1,0 +1,26 @@
+Upload documents to a vector store (POST)
+/api/ingest/upload 
+
+Send a chat message to the LLM (POST)
+/api/chat 
+
+Get all vector stores (GET)
+/api/stores
+
+Get all files uploaded to a specific vector store (GET)
+/api/stores/:client/files
+
+Get usage information (input/output tokens, etc) for a specific vector store. (GET)
+/api/usage
+
+Establist a connection to get real-time updates on usage (GET)
+/api/usage/stream
+
+Delete a file from a vector store (DELETE)
+/api/stores/:client/files/:fileId
+
+Delete a vector store using the client (DELETE)
+/api/stores/:client
+
+Delete all vector stores by name (DELETE)
+/api/cleanup/delete-all-by-name/:name

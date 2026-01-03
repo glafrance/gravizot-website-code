@@ -1,0 +1,144 @@
+{
+  "name": "Email Task Status",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 7 * * *"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "f93b165f-8f97-4cba-a789-67fc1c1d87a5",
+      "name": "Execute Today 7am"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1uEAzrrvye30DLgO2G_ff4vBVXWY8GqnFEihObOFf0WI",
+          "mode": "list",
+          "cachedResultName": "Project Tasks",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1uEAzrrvye30DLgO2G_ff4vBVXWY8GqnFEihObOFf0WI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1uEAzrrvye30DLgO2G_ff4vBVXWY8GqnFEihObOFf0WI/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        208,
+        0
+      ],
+      "id": "5e66a62e-3efb-4b28-ba5c-a58e37ab57b7",
+      "name": "Get Tasks Not Done Yet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "IrIDU0fzXFHtcJbw",
+          "name": "greg@bytezoggle"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const getMillisecondsUntilEODFriday = () => {\n  const now = new Date();\n  const dayOfWeek = now.getDay();\n  const endOfWeek = new Date();\n  \n  if (dayOfWeek !== 5) {\n    const daysUntilFriday = (5 - dayOfWeek + 7) % 7;\n    endOfWeek.setDate(now.getDate() + daysUntilFriday);\n  }\n  endOfWeek.setHours(23, 59, 59, 999);\n  return endOfWeek.getTime();\n};\n\nconst generateLineItem = (item) => {\n  return `\n    Task: ${item.json.Task}\n    Due date: ${item.json[\"Due Date\"]}\n    Estimated time required: ${item.json[\"Estimated Time Required\"]}\n    Status: ${item.json.Status}\n  `;\n};\n\nconst generateEmail = (overdueTasks, tasksDueThisWeek) => {\n  const overdueLineItems = overdueTasks.map(task => generateLineItem(task)).join(\"\");\n  const dueThisWeekLineItems = tasksDueThisWeek.map(task => generateLineItem(task)).join(\"\");\n  return `OVERDUE TASKS:\\n${overdueLineItems}\\n\\nTASKS TO BE COMPLETED THIS WEEK:\\n${dueThisWeekLineItems}`\n};\n\nconst filtered = $input.all().filter(item => {\n  return (item.json.Status).trim().toLowerCase() !== \"done\";\n});\n\nconst overdue = filtered.filter(item => {\n  const dueDate = new Date(item.json[\"Due Date\"].trim()).getTime();\n  const now = new Date().getTime();\n  return (dueDate < now);\n});\n\nconst dueThisWeek = filtered.filter(item => {\n  const nowMilliseconds = getMillisecondsUntilEODFriday();\n  const dueDate = new Date(item.json[\"Due Date\"].trim()).getTime();\n  const now = new Date().getTime();\n  return (dueDate >= now && dueDate <= nowMilliseconds);\n});\n\nconst tasks = generateEmail(overdue, dueThisWeek);\n\nreturn [{ json: { tasks } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        416,
+        0
+      ],
+      "id": "1e66c738-d13e-4a80-9c53-4c2f9a9d6ca1",
+      "name": "Filter Tasks Not Done Yet"
+    },
+    {
+      "parameters": {
+        "sendTo": "greg@bytezoggle.com",
+        "subject": "Task Summary",
+        "emailType": "text",
+        "message": "=Here are overdue tasks and tasks that need to be done this week:\n\n{{ $json.tasks }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        624,
+        0
+      ],
+      "id": "fa299390-171e-4d22-98ab-b927f5c84614",
+      "name": "Send Task Summary Email",
+      "webhookId": "ffd15c3d-3ecf-4470-955c-549b41a5aa12",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "lVBhxCXwTW5jZgqJ",
+          "name": "greg@bytezoggle.com"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Execute Today 7am": {
+      "main": [
+        [
+          {
+            "node": "Get Tasks Not Done Yet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Tasks Not Done Yet": {
+      "main": [
+        [
+          {
+            "node": "Filter Tasks Not Done Yet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Tasks Not Done Yet": {
+      "main": [
+        [
+          {
+            "node": "Send Task Summary Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "0c7ca25b-46a4-4bb3-942c-4f70743f0819",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "fff45e06556ddb46eb6f558e556b9b67a7bcf4f94dfa0cca7550d16dc81ad93c"
+  },
+  "id": "kzpsaVQVd1HUa7Q2",
+  "tags": []
+}

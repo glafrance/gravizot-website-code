@@ -1,0 +1,309 @@
+@use "../../../assets/styles/colors" as *;
+
+.page-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100vh;
+  background-color: $blue-gray900;
+  color: $gray50;
+
+  .hero-section {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    width: 100vw;
+    height: calc(100vh - 58px);
+    background-image: url("../../../assets/images/abstract-blue-wavy-illustration.jpg");
+    background-size: cover;      /* makes the image cover the div */
+    background-position: center; /* keeps image centered */
+    background-repeat: no-repeat;
+    padding-bottom: 70px;
+
+    .hero-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+
+      .message-call-to-action {
+        display: flex;
+        align-items: flex-start;
+        gap: 100px;
+        margin-top: 100px;
+        margin-bottom: 50px;
+
+        .message-container {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          h1 {
+            line-height: 70px;
+            letter-spacing: 5px;
+            text-align: center;
+            font-size: 30px;
+          }
+          .purple, .blue {
+            letter-spacing: 10px;
+            font-size: 45px;
+          }
+          .purple {
+            color: $purple600;
+          }
+          .blue {
+            color: $blue600;
+          }
+          .filler {
+            padding: 0 30px;
+          }
+          h2 {
+            color: $green500;
+            letter-spacing: 5px;
+            text-align: center;
+            line-height: 45px;
+            width: 500px;
+          }
+        }
+        .call-to-action-container {
+          display: flex;
+          flex-direction: column;
+  
+          gravizot {
+            font-size: 40px;        
+          }
+          h2 {
+            line-height: 45px;
+            letter-spacing: 5px;
+          }
+          .expertise {
+            margin-top: 20px;
+            h2 {
+              font-size: 30px;
+              color: $purple600;
+            }
+          }
+        }
+      }
+      .button-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+      }
+    }
+  }
+}
+
+@media (max-width: 1400px) {
+  .page-container .hero-section .hero-container .message-call-to-action {
+    .message-container {
+      margin-top: 0;
+
+      h1 {
+        font-size: 25px;
+        line-height: 55px;
+      }
+      .purple, .blue {
+        font-size: 35px;
+      }
+    }
+  }
+  
+  .page-container .hero-section .hero-container .message-call-to-action .call-to-action-container {
+    gravizot {
+      font-size: 30px;        
+    }
+    .expertise h2 {
+      font-size: 25px;
+    }    
+  }
+}
+
+@media (max-width: 1300px) {
+  .page-container .hero-section .hero-container .message-call-to-action {
+    .message-container {
+      margin-top: 0;
+
+      h1 {
+        font-size: 20px;
+        line-height: 40px;
+      }
+      .purple, .blue {
+        font-size: 30px;
+      }
+    }
+  }
+  
+  .page-container .hero-section .hero-container .message-call-to-action .call-to-action-container {
+    gravizot {
+      font-size: 25px;        
+    }
+    .expertise h2 {
+      font-size: 22px;
+    }    
+  }
+}
+
+@media (max-width: 1200px) {
+  .page-container .hero-section .hero-container {
+    .message-call-to-action {
+      margin-top: 70px;
+      gap: 60px;
+    }
+  }
+}
+
+@media (max-width: 1100px) {
+  .page-container .hero-section .hero-container .message-call-to-action {
+    .message-container {
+
+      h1 {
+        font-size: 15px;
+        line-height: 30px;
+      }
+      .purple, .blue {
+        font-size: 20px;
+      }
+      h2 {
+        font-size: 20px;
+        line-height: 35px;
+      }
+      .filler {
+        padding: 0 20px;
+      }
+    }
+  }
+  
+  .page-container .hero-section .hero-container .message-call-to-action .call-to-action-container {
+    gravizot {
+      font-size: 20px;        
+    }
+    h2 {
+      font-size: 18px;
+      line-height: 35px;
+    }
+    .expertise {
+      margin-top: 0;
+      h2 {
+        font-size: 18px;
+      }    
+    } 
+  }
+}
+
+@media (max-width: 1050px) {
+  .page-container .hero-section {
+    background-size: 100% 200%;  
+    background-position: top;
+    padding-bottom: 50px;
+    
+    .hero-container .message-call-to-action {
+      flex-direction: column;
+      align-items: center;
+      margin-top: 50px;
+    }
+  }
+}
+
+@media (max-width: 500px) {
+  .page-container .hero-section .hero-container .message-call-to-action {
+    .message-container {
+
+      h1 {
+        font-size: 14px;
+        line-height: 25px;
+      }
+      .purple, .blue {
+        font-size: 16px;
+      }
+      h2 {
+        font-size: 16px;
+        line-height: 25px;
+        width: 300px;
+      }
+      .filler {
+        padding: 0 16px;
+      }
+    }
+  }
+  
+  .page-container .hero-section .hero-container {
+    .message-call-to-action {
+      gap: 40px;
+
+      .call-to-action-container {
+        gravizot {
+          font-size: 16px;        
+        }
+        h2 {
+          font-size: 16px;
+          line-height: 25px;
+        }
+        .expertise {
+          h2 {
+            font-size: 16px;
+          }    
+        } 
+      }
+    }
+    .button-container {
+      h3 {
+        font-size: 16px;
+      }
+    }
+  }
+}
+
+@media (max-width: 450px) {
+  .page-container .hero-section .hero-container .message-call-to-action {
+    .message-container {
+
+      h1 {
+        font-size: 12px;
+        line-height: 20px;
+      }
+      .purple, .blue {
+        font-size: 14px;
+      }
+      h2 {
+        font-size: 14px;
+        line-height: 20px;
+        width: 300px;
+      }
+      .filler {
+        padding: 0 14px;
+      }
+    }
+  }
+  
+  .page-container .hero-section .hero-container {
+    .message-call-to-action {
+      gap: 30px;
+
+      .call-to-action-container {
+        gravizot {
+          font-size: 14px;        
+        }
+        h2 {
+          font-size: 14px;
+          line-height: 20px;
+        }
+        .expertise {
+          h2 {
+            font-size: 14px;
+          }    
+        } 
+      }
+    }
+    .button-container {
+      h3 {
+        font-size: 14px;
+      }
+    }
+  }
+}
+
+@media (max-width: 400px) {
+  .page-container .hero-section .hero-container {
+    padding: 0 20px;
+  }
+}

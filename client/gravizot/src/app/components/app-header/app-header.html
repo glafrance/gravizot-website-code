@@ -1,0 +1,15 @@
+<header class="container">
+  <div class="brand">
+    <a routerLink="/" class="logo"><gravizot [variant]="'light'"></gravizot></a>
+    <p>Smart AI for SMBs</p>
+  </div>
+
+  <nav class="nav">
+    @if(!isLoggedIn()) {
+      <a (click)="openSignupDialog(); $event.preventDefault()" class="nav-link">Signup / Login</a>
+    }
+    @if(isLoggedIn()) {
+      <a (click)="logout(); $event.preventDefault()" class="nav-link">Logout</a>
+    }
+  </nav>
+</header>
